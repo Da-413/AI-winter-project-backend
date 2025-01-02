@@ -63,6 +63,8 @@ options = webdriver.ChromeOptions()
 options.add_argument("--headless")
 options.add_argument("--no-sandbox")
 options.add_argument("--disable-dev-shm-usage")
+options.add_argument("--disable-gpu")  # GPU 비활성화
+options.add_argument("--disable-software-rasterizer")
 options.add_argument("window-size=1920,1080")
 
 # ChromeDriver 자동 설치 및 실행
@@ -73,7 +75,7 @@ def scrape_article_content(article_link: str) -> str:
     # URL 유효성 검사
     if not validators.url(article_link):
         raise ValueError(f"잘못된 URL입니다: {article_link}")
-
+    driver = None
     try:
         # 기사 페이지로 이동
         driver = webdriver.Chrome(service=service, options=options)
@@ -99,7 +101,8 @@ def scrape_article_content(article_link: str) -> str:
     except Exception as e:
         raise ValueError(f"기사 크롤링 중 오류 발생: {e}")
     finally:
-        driver.quit()
+        if driver:
+            driver.quit()
 
 # 경제 용어를 찾는 엔드포인트
 @app.post("/findword")
